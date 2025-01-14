@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Structured Doubt Preparation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+
+    h1, h2 {
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 14px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #output {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 15px;
+      background: #fff;
+      white-space: pre-wrap;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Structured Doubt Preparation Form</h1>
+  <p>
+    Please fill in each field below. By keeping your descriptions clear and direct, 
+    you can compile a focused, neutral message for your counselor or psychologist.
+  </p>
+
+  <!-- Input Form -->
+  <form id="doubtForm">
+    <label for="context">1. Current context or situation:</label>
+    <input type="text" id="context" name="context" placeholder="e.g., a recurring worry at work, difficulty making decisions, etc." />
+
+    <label for="mainDoubt">2. Main doubt or worry:</label>
+    <input type="text" id="mainDoubt" name="mainDoubt" placeholder="e.g., second-guessing my abilities, uncertainty about the future, etc." />
+
+    <label for="triggerSituations">3. Typical situations or triggers:</label>
+    <input type="text" id="triggerSituations" name="triggerSituations" placeholder="e.g., performance reviews, social gatherings, conflicts, etc." />
+
+    <label for="experience">4. How it affects me when it arises:</label>
+    <input type="text" id="experience" name="experience" placeholder="e.g., physical discomfort, sleeplessness, overthinking, etc." />
+
+    <label for="discussionPoints">5. Important points I want to discuss:</label>
+    <input type="text" id="discussionPoints" name="discussionPoints" placeholder="e.g., strategies to cope, clarity on root causes, etc." />
+
+    <label for="desiredOutcome">6. Desired outcome or goal:</label>
+    <input type="text" id="desiredOutcome" name="desiredOutcome" placeholder="e.g., reducing stress, developing better coping skills, etc." />
+
+    <button type="submit">Generate Communication Text</button>
+  </form>
+
+  <!-- Output Section -->
+  <h2>Generated Communication</h2>
+  <div id="output"></div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script>
+    // Firebase Configuration (Replace with your Firebase config)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDI0rQi8B0ge1xsjamtVjgcOz_XLoWEjhk",
+      authDomain: "doubts-6107b.firebaseapp.com",
+      projectId: "doubts-6107b",
+      storageBucket: "doubts-6107b.firebasestorage.app",
+      messagingSenderId: "555931383250",
+      appId: "1:555931383250:web:746deb5d70aaca2c37840b"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Function to generate structured text
+    function generateStructuredText(data) {
+      return `
+I am currently dealing with: ${data.context}
+
+My main doubt or worry is: ${data.mainDoubt}
+
+This doubt typically arises in situations like: ${data.triggerSituations}
+
+When it does arise, I experience the following effects: ${data.experience}
+
+I would like to ensure we also discuss: ${data.discussionPoints}
+
+My overall goal is: ${data.desiredOutcome}`;
+    }
+
+    // Function to save data to Firestore
+    async function saveToFirestore(data) {
+      try {
+        await db.collection('doubts').add({
+          ...data,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log('Data saved to Firestore');
+        alert('Data saved successfully!');
+      } catch (error) {
+        console.error('Error saving to Firestore:', error);
+        alert('Error saving data. Please check the console for details.');
+      }
+    }
+
+    // Handle form submission
+    document.getElementById('doubtForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Retrieve user input
+      const formData = {
+        context: document.getElementById('context').value.trim(),
+        mainDoubt: document.getElementById('mainDoubt').value.trim(),
+        triggerSituations: document.getElementById('triggerSituations').value.trim(),
+        experience: document.getElementById('experience').value.trim(),
+        discussionPoints: document.getElementById('discussionPoints').value.trim(),
+        desiredOutcome: document.getElementById('desiredOutcome').value.trim(),
+      };
+
+      // Generate structured text
+      const structuredText = generateStructuredText(formData);
+
+      // Display the text in the output area
+      document.getElementById('output').textContent = structuredText;
+
+      // Save data to Firestore
+      await saveToFirestore(formData);
+    });
+  </script>
+</body>
+</html>
